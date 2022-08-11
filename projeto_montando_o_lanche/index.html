@@ -22,7 +22,7 @@
   <body>
     <nav class="navbar navbar-light bg-light">
       <div class="container">
-        <span class="navbar-brand nb-0 h1">Monte o seu Lanche</span>
+        <span class="navbar-brand nb-0 h1 text-center">Monte o seu Lanche</span>
       </div>
     </nav>
 
@@ -42,9 +42,8 @@
               </div>
             </div>
           </div>
-          <div class="col-md-6">
+          <div class="col-md-6" v-if="etapa == 1">
             <!-- TIPO DE PÂO -->
-
             <div class="row mt-2">
               <div class="col">
                 <div class="card text-center">
@@ -80,7 +79,7 @@
                 <div class="card text-center">
                   <div class="card-header">SALADAS</div>
                   <div class="card-body">
-                    <div class="form-check">
+                    <div class="form-check form-check-inline">
                       <input
                         v-model="inputSaladas"
                         class="form-check-input"
@@ -166,18 +165,84 @@
                         value="soja"
                       />
                       <label class="form-check-label"> Soja </label>
-                      <div>
-                        <p></p>
-                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
+            <div class="row mt-2">
+              <div class="col d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  @click="fazerPedido()"
+                >
+                  Fazer pedido
+                </button>
+              </div>
+            </div>
+          </div>
+
+          
+          <div class="col-md-6" v-if="etapa == 2">
+            <div class="row mt-2">
+            <div class="col">
+              <div class="card">
+                <div class="card-header">INFORME SEUS DADOS</div>
+                <div class="card-body">
+                  <div class="mb-3">
+                    <label classe="form-label" >Nome</label>
+                    <input v-model="inputNome" type="text" class="form-control" />
+                  </div>
+                  <div class="mb-3">
+                    <label classe="form-label"
+                      >Endereço</label
+                    >
+                    <input v-model="inputEndereco" type="text" class="form-control" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col d-flex justify-content-between">
+              <button type="button" class="btn btn-warning" @click="etapa -= 1">
+                voltar para o lanche
+              </button>
+              <button type="button" class="btn btn-success" @click="confirmarPedido()">
+                Confirmar
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6" v-if="etapa == 3">
+          <div class="row mt-2">
+            <div class="col">
+              <div class="card">
+                <div class="card-header">PEDIDO CONFIRMADO</div>
+                <div class="card-body">
+                  <div class="mb-3">
+                   <p>Agora é só aguardar 10 minutinhos!</p>
+                   <p>Vamos chamar você em breve</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row mt-2">
+            <div class="col d-flex justify-content-between">
+              <button type="button" class="btn btn-primary" @click="etapa = 1">
+                Repetir pedido
+              </button>
+              <button type="button" class="btn btn-success" @click="novoPedido()">
+                Novo pedido
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
+  </div>
     <script>
       const vm = new Vue({
         el: "#app",
@@ -187,6 +252,10 @@
             inputSaladas: [],
             inputMolhos: [],
             inputHmaburguer: "",
+            etapa: 1,
+            inputNome: "",
+            inputEndereco: "",
+            novoPedidoAssincrono: null,
           };
         },
         computed: {
@@ -249,6 +318,49 @@
                 return "imagens/padrao/hamburguer.png";
             }
           },
+        },
+        methods: {
+          fazerPedido() {
+            const temPaoEHambueguer = this.inputTipoPao && this.inputHmaburguer;
+
+            if (temPaoEHambueguer) {
+              this.etapa = 2;
+            } else {
+              alert(
+                "Você precisa selecionar no minimo um pâo e um hambúrguer!"
+              );
+            }
+          },
+          confirmarPedido() {
+            const temNome = this.nome
+            const temEndereco = this.temEndereco
+
+            if (temNome && temEndereco) {
+              this.etapa = 3;
+
+              this.novoPedidoAssincrono = setTimeout(() => this.novoPedido(), 10000)
+            } else {
+              alert('Você precisa informar o seu nome e endereço')
+            }
+          },
+          novoPedido() {
+            this.etapa = 1;
+
+            this.inputTipoPao= ""
+            this.inputSaladas= []
+            this.inputMolhos= []
+            this.inputHmaburguer= ""
+            this.etapa= 1
+            this.inputNome= ""
+            this.inputEndereco= ""
+          },
+          watch: {
+            etapa(novoValor) {
+              if (novoValor === 1) {
+                clearTimeout(this.novoPedidoAssincrono)
+              }
+            }
+          }
         },
       });
     </script>
